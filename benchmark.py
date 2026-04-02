@@ -118,9 +118,17 @@ def plot_speedup(cache: dict, merge_counts: list[int]) -> None:
             if key in cache.get(label, {}) and key in naive_times:
                 xs.append(n)
                 ys.append(naive_times[key] / cache[label][key])
-        ax.plot(xs, ys, marker=marker, color=color, linewidth=2, markersize=7, label=label)
-
-    ax.axhline(1, color="gray", linestyle="--", linewidth=1, alpha=0.7)
+        linestyle = ":" if label == "Naive" else "-"
+        ax.plot(
+            xs,
+            ys,
+            marker=marker,
+            color=color,
+            linewidth=2,
+            markersize=7,
+            label=label,
+            linestyle=linestyle,
+        )
     ax.set_xscale("log")
     ax.set_xlabel("Number of merges", fontsize=12)
     ax.set_ylabel("Speedup vs. Naive  (higher is better)", fontsize=12)
