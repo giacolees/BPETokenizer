@@ -1,13 +1,11 @@
-"""Indexed-heap BPE: heap + inverted index — the production-grade algorithm."""
+"""Inverted BPE: inverted index limits each merge step to only affected words."""
 
 from __future__ import annotations
 
 from tqdm import tqdm
 
-from bpetokenizer._heap_compat import heapify_max, heappop_max, heappush_max
 
-
-def indexed_heap_bpe(
+def inverted_bpe(
     counts: dict[str, int],
     word_vocab: dict[str, tuple[int, ...]],
     tokens: dict[int, bytes],
@@ -16,15 +14,11 @@ def indexed_heap_bpe(
     merge_start: int,
     num_merges: int,
 ) -> tuple[list[tuple[int, int]], dict[int, bytes]]:
-    """Run BPE merges using a lazy max-heap and an inverted index.
+    """Run BPE merges using an inverted index to avoid scanning the full corpus.
 
-    Combines two optimisations:
-
-    * **Heap** — O(log N) best-pair selection with lazy deletion of stale entries.
-    * **Inverted index** — each merge only visits the words that actually contain
-      the merged pair, avoiding a full-corpus scan.
-
-    This is the algorithm used by :func:`bpetokenizer.train_bpe`.
+    ``pair_to_words`` maps each bigram to the set of words that currently contain
+    it.  Only those words are visited when a pair is merged, and the index is
+    kept in sync after each update.
 
     Parameters
     ----------
@@ -53,18 +47,10 @@ def indexed_heap_bpe(
     i = merge_start
     merge_ids: list[tuple[int, int]] = []
 
-    heap_pc: list[tuple[int, tuple[int, int]]] = [(v, k) for k, v in pair_counts.items()]
-    heapify_max(heap_pc)
-
-    for _ in tqdm(range(num_merges), desc="indexed_heap_bpe"):
-        # Find the highest-frequency non-stale pair; stop early if none remain.
-        while heap_pc:
-            val, (a, b) = heappop_max(heap_pc)
-            if val == pair_counts[(a, b)] and val > 0:
-                break
-        else:
+    for _ in tqdm(range(num_merges), desc="inverted_bpe"):
+        if not any(v > 0 for v in pair_counts.values()):
             break
-
+        a, b = max(pair_counts, key=lambda p: (pair_counts[p], p))
         merge_ids.append((a, b))
         tokens[i] = tokens[a] + tokens[b]
 
@@ -76,19 +62,12 @@ def indexed_heap_bpe(
             while j < len(seq):
                 if j < len(seq) - 1 and seq[j] == a and seq[j + 1] == b:
                     if new_seq:
-                        left = new_seq[-1]
-                        pair_counts[(left, a)] -= freq
-                        pair_counts[(left, i)] += freq
-                        heappush_max(heap_pc, (pair_counts[(left, a)], (left, a)))
-                        heappush_max(heap_pc, (pair_counts[(left, i)], (left, i)))
+                        pair_counts[(new_seq[-1], a)] -= freq
+                        pair_counts[(new_seq[-1], i)] += freq
                     if j + 2 < len(seq):
-                        right = seq[j + 2]
-                        pair_counts[(b, right)] -= freq
-                        pair_counts[(i, right)] += freq
-                        heappush_max(heap_pc, (pair_counts[(b, right)], (b, right)))
-                        heappush_max(heap_pc, (pair_counts[(i, right)], (i, right)))
+                        pair_counts[(b, seq[j + 2])] -= freq
+                        pair_counts[(i, seq[j + 2])] += freq
                     pair_counts[(a, b)] -= freq
-                    heappush_max(heap_pc, (pair_counts[(a, b)], (a, b)))
                     new_seq.append(i)
                     j += 2
                 else:

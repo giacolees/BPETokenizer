@@ -27,7 +27,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
 from bpetokenizer._utils import load_counts
-from bpetokenizer.algorithms import heap_bpe, indexed_bpe, indexed_heap_bpe, naive_bpe
+from bpetokenizer.algorithms import heap_bpe, inverted_bpe, inverted_heap_bpe, naive_bpe
 
 COUNTS_PATH = "data/pretokenized_counts.pkl"
 CACHE_PATH = "data/benchmark_cache.json"
@@ -40,8 +40,8 @@ DEFAULT_MERGES = [500, 1000, 2000, 5000, 9743]
 ALGORITHMS = [
     ("Naive", naive_bpe),
     ("Heap", heap_bpe),
-    ("Inverted Index", indexed_bpe),
-    ("Inverted Index + Heap", indexed_heap_bpe),
+    ("Inverted Index", inverted_bpe),
+    ("Inverted Index + Heap", inverted_heap_bpe),
 ]
 
 COLORS = ["#e74c3c", "#e67e22", "#3498db", "#2ecc71"]

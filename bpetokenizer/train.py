@@ -6,7 +6,7 @@ import os
 
 from ._constants import BASE_VOCAB_SIZE
 from ._utils import init_from_counts
-from .algorithms.indexed_heap import indexed_heap_bpe
+from .algorithms.inverted_heap import inverted_heap_bpe
 from .pretokenize import pretokenize
 
 
@@ -45,7 +45,7 @@ def train_bpe(
     merge_start = BASE_VOCAB_SIZE + len(special_tokens)
     num_merges = vocab_size - merge_start
 
-    merge_ids, tokens = indexed_heap_bpe(
+    merge_ids, tokens = inverted_heap_bpe(
         counts, word_vocab, tokens, pair_counts, pair_to_words, merge_start, num_merges
     )
 
