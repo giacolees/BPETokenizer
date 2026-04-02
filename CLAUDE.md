@@ -6,11 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 uv sync --extra dev          # install all dependencies including dev tools
+uv sync --extra benchmark    # also install matplotlib for benchmark plots
 uv run pytest tests/ -v      # run test suite
 uv run pytest tests/test_tokenizer.py::TestTokenizer  # run a single class
 uv run ruff check .          # lint
 uv run ruff format .         # format
 uv run python benchmark.py   # algorithm comparison (needs data/pretokenized_counts.pkl)
+                             # caches results to data/benchmark_cache.json; saves plots to assets/
 uv run python scripts/export_json.py corpus.txt 2000 tokenizer.json
 uv run python scripts/pretokenize_corpus.py data/corpus.txt data/counts.pkl
 ```
@@ -46,6 +48,10 @@ The package is `bpetokenizer/`. Public API: `Tokenizer` and `train_bpe` (both ex
 | `indexed_heap.py` | Heap + index | O(log N) | Words containing pair only |
 
 The heap uses **lazy deletion**: stale entries are pushed when `pair_counts` updates; on pop, entries are skipped until `val == pair_counts[(a, b)] and val > 0`.
+
+### Python 3.12 heap compatibility
+
+`heapq.heapify_max`, `heappop_max`, `heappush_max` are Python 3.13+ public API. `bpetokenizer/_heap_compat.py` provides a transparent shim for Python 3.12 by negating priorities so a standard min-heap acts as a max-heap. Both `heap.py` and `indexed_heap.py` import from `_heap_compat` instead of `heapq` directly.
 
 ### Key constants
 

@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from heapq import heapify_max, heappop_max, heappush_max
-
 from tqdm import tqdm
+
+from bpetokenizer._heap_compat import heapify_max, heappop_max, heappush_max
 
 
 def indexed_heap_bpe(
