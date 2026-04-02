@@ -13,9 +13,10 @@ from __future__ import annotations
 import heapq
 import sys
 
-if sys.version_info >= (3, 13):
-    from heapq import heapify_max, heappop_max, heappush_max
+if sys.version_info >= (3, 14):
+    from heapq import heapify_max, heappop_max, heappush_max  # type: ignore[attr-defined]
 else:
+
     def heapify_max(heap: list) -> None:  # type: ignore[misc]
         """Transform *heap* into a max-heap in-place."""
         for i in range(len(heap)):

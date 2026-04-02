@@ -30,17 +30,17 @@ from bpetokenizer._utils import load_counts
 from bpetokenizer.algorithms import heap_bpe, indexed_bpe, indexed_heap_bpe, naive_bpe
 
 COUNTS_PATH = "data/pretokenized_counts.pkl"
-CACHE_PATH  = "data/benchmark_cache.json"
-ASSETS_DIR  = "assets"
-SPECIAL     = ["<|endoftext|>"]
+CACHE_PATH = "data/benchmark_cache.json"
+ASSETS_DIR = "assets"
+SPECIAL = ["<|endoftext|>"]
 MERGE_START = 257
 
 DEFAULT_MERGES = [500, 1000, 2000, 5000, 9743]
 
 ALGORITHMS = [
-    ("Naive",                 naive_bpe),
-    ("Heap",                  heap_bpe),
-    ("Inverted Index",        indexed_bpe),
+    ("Naive", naive_bpe),
+    ("Heap", heap_bpe),
+    ("Inverted Index", indexed_bpe),
     ("Inverted Index + Heap", indexed_heap_bpe),
 ]
 
@@ -51,6 +51,7 @@ MARKERS = ["o", "s", "^", "D"]
 # ---------------------------------------------------------------------------
 # Benchmark runner
 # ---------------------------------------------------------------------------
+
 
 def run_once(fn, num_merges: int) -> float:
     counts, word_vocab, tokens, pair_counts, pair_to_words = load_counts(
@@ -82,13 +83,13 @@ def run_benchmark(merge_counts: list[int], cache: dict, no_cache: bool) -> dict:
 # Plotting
 # ---------------------------------------------------------------------------
 
+
 def plot_time(cache: dict, merge_counts: list[int]) -> None:
     fig, ax = plt.subplots(figsize=(9, 5))
     for (label, _), color, marker in zip(ALGORITHMS, COLORS, MARKERS):
         xs = [n for n in merge_counts if str(n) in cache.get(label, {})]
         ys = [cache[label][str(n)] for n in xs]
-        ax.plot(xs, ys, marker=marker, color=color, linewidth=2,
-                markersize=7, label=label)
+        ax.plot(xs, ys, marker=marker, color=color, linewidth=2, markersize=7, label=label)
 
     ax.set_xscale("log")
     ax.set_yscale("log")
@@ -117,8 +118,7 @@ def plot_speedup(cache: dict, merge_counts: list[int]) -> None:
             if key in cache.get(label, {}) and key in naive_times:
                 xs.append(n)
                 ys.append(naive_times[key] / cache[label][key])
-        ax.plot(xs, ys, marker=marker, color=color, linewidth=2,
-                markersize=7, label=label)
+        ax.plot(xs, ys, marker=marker, color=color, linewidth=2, markersize=7, label=label)
 
     ax.axhline(1, color="gray", linestyle="--", linewidth=1, alpha=0.7)
     ax.set_xscale("log")
@@ -144,8 +144,7 @@ def plot_throughput(cache: dict, merge_counts: list[int]) -> None:
             if key in cache.get(label, {}):
                 xs.append(n)
                 ys.append(n / cache[label][key])
-        ax.plot(xs, ys, marker=marker, color=color, linewidth=2,
-                markersize=7, label=label)
+        ax.plot(xs, ys, marker=marker, color=color, linewidth=2, markersize=7, label=label)
 
     ax.set_xscale("log")
     ax.set_yscale("log")
@@ -167,6 +166,7 @@ def plot_throughput(cache: dict, merge_counts: list[int]) -> None:
 # Summary table
 # ---------------------------------------------------------------------------
 
+
 def print_summary(cache: dict, merge_counts: list[int]) -> None:
     labels = [lbl for lbl, _ in ALGORITHMS]
     col = 14
@@ -181,7 +181,7 @@ def print_summary(cache: dict, merge_counts: list[int]) -> None:
         row = f"{n:<8}"
         for lbl in labels:
             t = cache.get(lbl, {}).get(str(n))
-            row += f"{t:>{col-1}.2f}s" if t is not None else f"{'—':>{col}}"
+            row += f"{t:>{col - 1}.2f}s" if t is not None else f"{'—':>{col}}"
         print(row)
 
     print("\n" + "=" * 70)
@@ -196,7 +196,7 @@ def print_summary(cache: dict, merge_counts: list[int]) -> None:
         row = f"{n:<8}"
         for lbl in labels:
             t = cache.get(lbl, {}).get(str(n))
-            row += f"{ref/t:>{col-1}.1f}×" if t is not None else f"{'—':>{col}}"
+            row += f"{ref / t:>{col - 1}.1f}×" if t is not None else f"{'—':>{col}}"
         print(row)
 
     print("\n" + "=" * 70)
@@ -208,7 +208,7 @@ def print_summary(cache: dict, merge_counts: list[int]) -> None:
         row = f"{n:<8}"
         for lbl in labels:
             t = cache.get(lbl, {}).get(str(n))
-            row += f"{n/t:>{col-1}.0f} " if t is not None else f"{'—':>{col}}"
+            row += f"{n / t:>{col - 1}.0f} " if t is not None else f"{'—':>{col}}"
         print(row)
 
 
@@ -216,12 +216,20 @@ def print_summary(cache: dict, merge_counts: list[int]) -> None:
 # Main
 # ---------------------------------------------------------------------------
 
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="BPE algorithm benchmark")
-    parser.add_argument("--merges", nargs="+", type=int, default=DEFAULT_MERGES,
-                        metavar="N", help="Merge counts to benchmark")
-    parser.add_argument("--no-cache", action="store_true",
-                        help="Ignore cached results and re-run everything")
+    parser.add_argument(
+        "--merges",
+        nargs="+",
+        type=int,
+        default=DEFAULT_MERGES,
+        metavar="N",
+        help="Merge counts to benchmark",
+    )
+    parser.add_argument(
+        "--no-cache", action="store_true", help="Ignore cached results and re-run everything"
+    )
     args = parser.parse_args()
 
     merge_counts = sorted(args.merges)

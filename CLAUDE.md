@@ -51,7 +51,7 @@ The heap uses **lazy deletion**: stale entries are pushed when `pair_counts` upd
 
 ### Python 3.12 heap compatibility
 
-`heapq.heapify_max`, `heappop_max`, `heappush_max` are Python 3.13+ public API. `bpetokenizer/_heap_compat.py` provides a transparent shim for Python 3.12 by negating priorities so a standard min-heap acts as a max-heap. Both `heap.py` and `indexed_heap.py` import from `_heap_compat` instead of `heapq` directly.
+`heapq.heapify_max`, `heappop_max`, `heappush_max` are Python 3.14+ public API. `bpetokenizer/_heap_compat.py` provides a transparent shim for Python ≤ 3.13 by negating priorities so a standard min-heap acts as a max-heap. Both `heap.py` and `indexed_heap.py` import from `_heap_compat` instead of `heapq` directly.
 
 ### Key constants
 

@@ -17,7 +17,7 @@ Each version fixes one bottleneck of the previous one, making the optimisation s
 | 3 | **Inverted Index** | `max()` — O(P) | Only words containing the pair |
 | 4 | **Inverted Index + Heap** | Lazy max-heap — O(log P) | Only words containing the pair |
 
-> **Python ≥ 3.12 note** — `heapq.heapify_max` / `heappop_max` / `heappush_max` were added as public API in Python 3.13. `bpetokenizer/_heap_compat.py` provides a transparent shim for Python 3.12 using value negation on a standard min-heap.
+> **Python ≥ 3.12 note** — `heapq.heapify_max` / `heappop_max` / `heappush_max` were added as public API in Python 3.14. `bpetokenizer/_heap_compat.py` provides a transparent shim for Python ≤ 3.13 using value negation on a standard min-heap.
 
 ---
 
